@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sélène & David Sailing</title>
+  <meta name="description" content="A travel journal, in motion." />
+
+  <!-- Fonts: Fraunces (display serif) + Inter Tight (body) + JetBrains Mono (meta) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Header overlay (top-left) -->
+  <header class="brand" aria-label="Site header">
+    <h1>
+      <span class="brand-name">Sélène</span>
+      <span class="brand-the">&</span>
+      <span class="brand-name">David</span>
+      <span class="brand-the">SAILING</span>
+    </h1>
+    <p class="brand-sub">A travel journal, in motion.</p>
+  </header>
+
+  <!-- About link (top-right) -->
+  <button class="about-btn" id="about-btn" aria-haspopup="dialog">about</button>
+
+  <!-- Reset / fit-bounds button -->
+  <button class="reset-btn" id="reset-btn" title="Fit all stops">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="14" height="14">
+      <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+    </svg>
+    <span>fit all</span>
+  </button>
+
+  <!-- Map -->
+  <div id="map" role="application" aria-label="World map of travels"></div>
+
+  <!-- Bottom timeline strip -->
+  <section class="timeline-wrap" aria-label="Trip timeline">
+    <div class="timeline-head">
+      <span class="th-label">timeline</span>
+      <span class="th-meta" id="th-meta">— stops · — countries</span>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <!-- About modal -->
+  <div class="modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <article class="modal-card">
+      <button class="modal-close" data-close aria-label="Close">×</button>
+      <p class="modal-eyebrow">— Our digital travel log</p>
+      <h2 id="about-title">About</h2>
+      <p>
+        A slow record of where we've been, drawn on a map. Each dot is a stop;
+        each stop links to a moment shared elsewhere — a post, a clip, a note
+        scribbled at sea.
+      </p>
+      <p class="modal-soft">
+        <!--<em>Edit this text in <code>index.html</code> — look for the <code>#about-modal</code> section.</em>-->
+        <em>Built by Sélène Ledain, 2026.</em>
+      </p>
+      <p class="modal-foot">Built with Leaflet · OpenStreetMap · ⚓</p>
+    </article>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>

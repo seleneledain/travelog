@@ -1,0 +1,99 @@
+{
+  "trips": [
+    {
+      "id": "lisbon-2025-09",
+      "date": "2025-09-12",
+      "place": "Lisbon",
+      "country": "Portugal",
+      "lat": 38.7223,
+      "lng": -9.1393,
+      "note": "Provisioned the boat. Last pastel de nata before the crossing.",
+      "photo": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80",
+      "links": [
+        { "platform": "instagram", "url": "https://instagram.com/" },
+        { "platform": "youtube",   "url": "https://youtube.com/" }
+      ]
+    },
+    {
+      "id": "madeira-2025-10",
+      "date": "2025-10-04",
+      "place": "Funchal",
+      "country": "Madeira",
+      "lat": 32.6669,
+      "lng": -16.9241,
+      "note": "Three days at sea. Arrived to levada hikes and Atlantic wind.",
+      "photo": "https://images.unsplash.com/photo-1601042879364-f3947d3f9c16?w=800&q=80",
+      "links": [
+        { "platform": "tiktok", "url": "https://tiktok.com/" }
+      ]
+    },
+    {
+      "id": "canaries-2025-11",
+      "date": "2025-11-02",
+      "place": "Las Palmas",
+      "country": "Gran Canaria",
+      "lat": 28.1235,
+      "lng": -15.4363,
+      "note": "Refit week. Met half the ARC fleet at the marina bar.",
+      "photo": "https://images.unsplash.com/photo-1542295669297-4d352b042bca?w=800&q=80",
+      "links": [
+        { "platform": "instagram", "url": "https://instagram.com/" }
+      ]
+    },
+    {
+      "id": "capeverde-2025-11b",
+      "date": "2025-11-22",
+      "place": "Mindelo",
+      "country": "Cape Verde",
+      "lat": 16.8901,
+      "lng": -24.9817,
+      "note": "Last landfall before the Atlantic. Morna in every café.",
+      "photo": "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800&q=80",
+      "links": [
+        { "platform": "youtube", "url": "https://youtube.com/" },
+        { "platform": "blog",    "url": "#",                       "label": "Read the log" }
+      ]
+    },
+    {
+      "id": "stlucia-2025-12",
+      "date": "2025-12-19",
+      "place": "Rodney Bay",
+      "country": "Saint Lucia",
+      "lat": 14.0750,
+      "lng": -60.9500,
+      "note": "Atlantic crossed. 18 days, two squalls, one flying fish in the cockpit.",
+      "photo": "https://images.unsplash.com/photo-1580541631971-a0e1dca6cdc1?w=800&q=80",
+      "links": [
+        { "platform": "instagram", "url": "https://instagram.com/" },
+        { "platform": "tiktok",    "url": "https://tiktok.com/" },
+        { "platform": "youtube",   "url": "https://youtube.com/" }
+      ]
+    },
+    {
+      "id": "grenadines-2026-02",
+      "date": "2026-02-08",
+      "place": "Tobago Cays",
+      "country": "St. Vincent & the Grenadines",
+      "lat": 12.6314,
+      "lng": -61.3500,
+      "note": "Anchored in turquoise. Turtles for breakfast company.",
+      "photo": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80",
+      "links": [
+        { "platform": "instagram", "url": "https://instagram.com/" }
+      ]
+    },
+    {
+      "id": "panama-2026-04",
+      "date": "2026-04-22",
+      "place": "Shelter Bay",
+      "country": "Panama",
+      "lat": 9.3700,
+      "lng": -79.9500,
+      "note": "Lining up for the canal transit. Pacific, here we come.",
+      "photo": "https://images.unsplash.com/photo-1530541930197-ff16ac917b0e?w=800&q=80",
+      "links": [
+        { "platform": "youtube", "url": "https://youtube.com/" }
+      ]
+    }
+  ]
+}

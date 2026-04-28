@@ -1,0 +1,612 @@
+/* ============================================================
+   Our Sailing Adventure — editorial travel-journal aesthetic
+   Palette: warm cream, deep ink, terracotta accent, sage past
+   ============================================================ */
+
+:root {
+  --ink:        #1a1814;
+  --ink-soft:   #4a423a;
+  --ink-mute:   #7a7065;
+  --paper:      #f5ecdc;
+  --paper-2:    #ebe1cf;
+  --paper-3:    #e0d5bf;
+  --line:       #d2c5ac;
+  --line-soft:  #e2d6bf;
+  --accent:     #c2553a;       /* terracotta — current */
+  --accent-deep:#9a3f2a;
+  --accent-2:   #5d7d6e;       /* muted sage — past stops */
+  --shadow-sm:  0 1px 2px rgba(26,24,20,.08);
+  --shadow:     0 2px 6px rgba(26,24,20,.08), 0 12px 28px rgba(26,24,20,.10);
+  --shadow-lg:  0 24px 64px rgba(26,24,20,.18);
+
+  --timeline-h: 200px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+/* MAP -------------------------------------------------------- */
+#map {
+  position: absolute;
+  inset: 0 0 var(--timeline-h) 0;
+  background: var(--paper);
+  z-index: 1;
+}
+
+/* paper grain over the whole page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background-image:
+    radial-gradient(rgba(26,24,20,0.025) 1px, transparent 1.2px);
+  background-size: 3px 3px;
+  mix-blend-mode: multiply;
+  opacity: .6;
+}
+
+/* tone the standard OSM tiles toward warm paper */
+.leaflet-tile {
+  filter: sepia(.35) saturate(.75) brightness(1.04) contrast(.92) hue-rotate(-6deg);
+}
+
+/* Leaflet UI tweaks */
+.leaflet-control-attribution {
+  background: rgba(245, 236, 220, .88) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9.5px !important;
+  color: var(--ink-mute) !important;
+  border-top-left-radius: 3px;
+}
+.leaflet-control-attribution a { color: var(--accent-deep) !important; }
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.leaflet-control-zoom a {
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 500 !important;
+}
+.leaflet-control-zoom a:hover { background: var(--paper-2) !important; }
+
+/* HEADER ----------------------------------------------------- */
+.brand {
+  position: absolute;
+  top: 22px; left: 24px;
+  z-index: 500;
+  pointer-events: none;
+  max-width: 70vw;
+}
+.brand h1 {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(245,236,220,.8);
+}
+.brand-the {
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.55em;
+  color: var(--ink-soft);
+  letter-spacing: 0;
+  vertical-align: 0.15em;
+  margin: 0 0.15em;
+}
+.brand-the:first-child { margin-left: 0; }
+.brand-name {
+  font-weight: 500;
+}
+.brand-sub {
+  margin: 4px 0 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 0 rgba(245,236,220,.8);
+}
+
+/* ABOUT button ------------------------------------------------ */
+.about-btn {
+  position: absolute;
+  top: 26px; right: 24px;
+  z-index: 500;
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  padding: 6px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: all .18s ease;
+  backdrop-filter: blur(2px);
+}
+.about-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* RESET button ----------------------------------------------- */
+.reset-btn {
+  position: absolute;
+  right: 24px;
+  bottom: calc(var(--timeline-h) + 18px);
+  z-index: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 7px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: var(--shadow-sm);
+  transition: all .15s ease;
+}
+.reset-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.reset-btn svg { display: block; }
+
+/* TIMELINE STRIP --------------------------------------------- */
+.timeline-wrap {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: var(--timeline-h);
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -8px 24px rgba(26,24,20,.06);
+}
+.timeline-wrap::before {
+  /* deckle / paper edge stripe */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: -1px;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--line) 0 8px,
+    transparent 8px 14px
+  );
+}
+
+.timeline-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 24px 8px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.th-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink-mute);
+}
+.th-meta {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.timeline {
+  flex: 1;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 14px 24px 18px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  position: relative;
+}
+.timeline::-webkit-scrollbar { height: 6px; }
+.timeline::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+.timeline::-webkit-scrollbar-track { background: transparent; }
+
+/* a thin hairline running through all entries */
+.timeline::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--line-soft);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.entry {
+  position: relative;
+  flex: 0 0 auto;
+  width: 220px;
+  margin-right: 14px;
+  padding: 10px 14px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+  z-index: 1;
+}
+.entry:hover {
+  background: var(--paper-2);
+  border-color: var(--line);
+}
+.entry.active {
+  background: var(--paper-2);
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+
+/* timeline dot, sitting on the hairline */
+.entry::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--accent-2);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--line);
+  z-index: 2;
+}
+.entry.current::before {
+  background: var(--accent);
+  width: 11px; height: 11px;
+}
+.entry.current::after {
+  content: "";
+  position: absolute;
+  left: 9px; top: calc(50% - 9px);
+  width: 19px; height: 19px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  animation: pulse 2.4s ease-out infinite;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(.55); opacity: .85; }
+  100% { transform: scale(1.6);  opacity: 0;   }
+}
+
+.entry .e-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  padding-left: 18px;
+}
+.entry .e-place {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  margin: 4px 0 1px;
+  line-height: 1.15;
+}
+.entry .e-country {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.entry .e-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  background: var(--accent);
+  color: var(--paper);
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: 2px;
+  text-transform: uppercase;
+}
+
+/* MAP MARKERS ------------------------------------------------ */
+.marker-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent-2);
+  border: 2.5px solid var(--paper);
+  box-shadow: 0 2px 5px rgba(0,0,0,.25);
+  cursor: pointer;
+  transition: transform .18s ease;
+}
+.leaflet-marker-icon:hover .marker-dot { transform: scale(1.3); }
+
+.marker-current {
+  position: relative;
+  width: 18px; height: 18px;
+}
+.marker-current .dot {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2.5px solid var(--paper);
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.marker-current .ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: pulseRing 2.2s ease-out infinite;
+}
+@keyframes pulseRing {
+  0%   { transform: scale(.6); opacity: .9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* POPUP ------------------------------------------------------ */
+.leaflet-popup-content-wrapper {
+  background: var(--paper) !important;
+  border-radius: 4px !important;
+  box-shadow: var(--shadow) !important;
+  padding: 0 !important;
+  border: 1px solid var(--line);
+}
+.leaflet-popup-tip {
+  background: var(--paper) !important;
+  border: 1px solid var(--line);
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: 290px !important;
+  font-family: 'Inter Tight', sans-serif;
+}
+.leaflet-popup-close-button {
+  color: var(--ink-mute) !important;
+  font-size: 22px !important;
+  font-family: 'Fraunces', serif !important;
+  padding: 6px 9px 0 0 !important;
+}
+
+.popup { padding: 16px 18px 14px; }
+.popup .pop-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+}
+.popup .pop-place {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 4px 0 1px;
+  line-height: 1.1;
+}
+.popup .pop-country {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+.popup .pop-photo {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 3px;
+  margin: 4px 0 12px;
+  display: block;
+  background: var(--paper-2);
+  border: 1px solid var(--line-soft);
+}
+.popup .pop-note {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 14.5px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0 0 12px;
+}
+.popup .pop-note::before { content: "“ "; color: var(--accent); }
+.popup .pop-note::after  { content: " ”"; color: var(--accent); }
+
+.popup .pop-links {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  border-top: 1px dashed var(--line);
+  padding-top: 11px;
+}
+.popup .pop-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--paper);
+  transition: all .15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.popup .pop-link:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* MODAL ------------------------------------------------------ */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal[hidden] { display: none; }
+.modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(26, 24, 20, .35);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: fadeIn .25s ease;
+}
+.modal-card {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 36px 38px 28px;
+  box-shadow: var(--shadow-lg);
+  animation: rise .28s cubic-bezier(.2,.8,.2,1);
+}
+.modal-close {
+  position: absolute;
+  top: 8px; right: 12px;
+  background: none; border: none;
+  font-size: 26px;
+  font-family: 'Fraunces', serif;
+  color: var(--ink-mute);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+}
+.modal-close:hover { color: var(--ink); }
+
+.modal-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--accent-deep);
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.modal-card h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  line-height: 1.05;
+}
+.modal-card p {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0 0 14px;
+}
+.modal-soft {
+  font-size: 13px !important;
+  color: var(--ink-mute) !important;
+  border-top: 1px dashed var(--line);
+  padding-top: 14px;
+  margin-top: 18px !important;
+}
+.modal-soft code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  background: var(--paper-2);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.modal-foot {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.1em;
+  color: var(--ink-mute) !important;
+  margin-top: 16px !important;
+  margin-bottom: 0 !important;
+  text-transform: uppercase;
+}
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes rise   {
+  from { opacity: 0; transform: translateY(12px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+
+/* ROUTE LINE styling (applied via JS via className) ---------- */
+.route-line {
+  /* leaflet polyline styling is done via JS options; this is fallback */
+}
+
+/* RESPONSIVE -------------------------------------------------- */
+@media (max-width: 720px) {
+  :root { --timeline-h: 170px; }
+
+  .brand { top: 16px; left: 16px; }
+  .brand h1 { font-size: 26px; }
+  .brand-sub { font-size: 11.5px; }
+
+  .about-btn {
+    top: 18px; right: 16px;
+    padding: 5px 11px; font-size: 9.5px;
+  }
+  .reset-btn {
+    right: 16px;
+    bottom: calc(var(--timeline-h) + 12px);
+    padding: 6px 10px; font-size: 9.5px;
+  }
+
+  .timeline-head { padding: 10px 16px 6px; }
+  .timeline { padding: 12px 16px 16px; }
+  .entry { width: 180px; }
+  .entry .e-place { font-size: 17px; }
+
+  .leaflet-popup-content { width: 240px !important; }
+  .popup .pop-place { font-size: 21px; }
+
+  .modal-card { padding: 28px 24px 22px; }
+  .modal-card h2 { font-size: 26px; }
+  .modal-card p { font-size: 15px; }
+}
