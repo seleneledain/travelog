@@ -95,14 +95,40 @@ body::before {
 }
 .brand h1 {
   margin: 0;
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 500;
-  font-variation-settings: "opsz" 144;
-  font-size: clamp(28px, 4vw, 44px);
   line-height: 1;
-  letter-spacing: -0.025em;
   color: var(--ink);
-  text-shadow: 0 1px 0 rgba(245,236,220,.8);
+  text-shadow: 0 1px 0 rgba(245, 236, 220, .8);
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.brand-name {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(24px, 3.4vw, 38px);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.brand-amp {
+  font-family: 'Cormorant Garamond', 'DM Serif Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--accent);
+  font-size: 1.15em;
+  margin: 0 0.08em;
+  vertical-align: -0.05em;
+}
+.brand-sub-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(14px, 1.8vw, 20px);
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  position: relative;
+  top: -0.18em;
 }
 .brand-the {
   font-style: italic;
@@ -114,9 +140,6 @@ body::before {
   margin: 0 0.15em;
 }
 .brand-the:first-child { margin-left: 0; }
-.brand-name {
-  font-weight: 500;
-}
 .brand-sub {
   margin: 4px 0 0;
   font-family: 'Fraunces', Georgia, serif;
