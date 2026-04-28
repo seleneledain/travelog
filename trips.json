@@ -30,7 +30,7 @@
     },
     {
       "id": "lisbon-2025-09",
-      "date": "2025-09-12",
+      "date": "2027-09-12",
       "place": "Lisbon",
       "country": "Portugal",
       "lat": 38.7223,
@@ -44,7 +44,7 @@
     },
     {
       "id": "madeira-2025-10",
-      "date": "2025-10-04",
+      "date": "2027-10-04",
       "place": "Funchal",
       "country": "Madeira",
       "lat": 32.6669,
@@ -57,7 +57,7 @@
     },
     {
       "id": "canaries-2025-11",
-      "date": "2025-11-02",
+      "date": "2027-11-02",
       "place": "Las Palmas",
       "country": "Gran Canaria",
       "lat": 28.1235,
@@ -70,7 +70,7 @@
     },
     {
       "id": "capeverde-2025-11b",
-      "date": "2025-11-22",
+      "date": "2027-11-22",
       "place": "Mindelo",
       "country": "Cape Verde",
       "lat": 16.8901,
@@ -84,7 +84,7 @@
     },
     {
       "id": "stlucia-2025-12",
-      "date": "2025-12-19",
+      "date": "2027-12-19",
       "place": "Rodney Bay",
       "country": "Saint Lucia",
       "lat": 14.0750,
@@ -99,7 +99,7 @@
     },
     {
       "id": "grenadines-2026-02",
-      "date": "2026-02-08",
+      "date": "2027-02-08",
       "place": "Tobago Cays",
       "country": "St. Vincent & the Grenadines",
       "lat": 12.6314,
@@ -112,7 +112,7 @@
     },
     {
       "id": "panama-2026-04",
-      "date": "2026-04-22",
+      "date": "2027-04-22",
       "place": "Shelter Bay",
       "country": "Panama",
       "lat": 9.3700,
