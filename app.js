@@ -54,6 +54,11 @@ async function init() {
     return;
   }
 
+  // Assign a unique internal key to each trip — `id` may legitimately
+  // repeat (same place visited twice), and date can repeat too, so we
+  // can't rely on either for Map keys / DOM lookups.
+  trips.forEach((t, i) => { t._key = `${t.id || 'stop'}-${i}`; });
+
   renderRoute(trips);
   renderMarkers(trips);
   renderTimeline(trips);
@@ -253,8 +258,33 @@ function renderRoute(list) {
 function renderMarkers(list) {
   const lastIdx = list.length - 1;
 
+  // Detect coordinate collisions and assign a small angular offset
+  // to each marker that shares a spot with an earlier one. Without
+  // this, repeat visits stack on top of each other and only the top
+  // marker is clickable.
+  const seenAt = new Map(); // "lat,lng" rounded -> array of indices
+  list.forEach((trip, idx) => {
+    const k = `${trip.lat.toFixed(4)},${trip.lng.toFixed(4)}`;
+    if (!seenAt.has(k)) seenAt.set(k, []);
+    seenAt.get(k).push(idx);
+  });
+
   list.forEach((trip, idx) => {
     const isCurrent = idx === lastIdx;
+
+    // Compute display position: nudge into a small ring if this
+    // coordinate is shared by 2+ stops. ~1.5km radius is enough to
+    // separate them visibly without lying about the location.
+    const cluster = seenAt.get(`${trip.lat.toFixed(4)},${trip.lng.toFixed(4)}`);
+    let lat = trip.lat, lng = trip.lng;
+    if (cluster && cluster.length > 1) {
+      const pos = cluster.indexOf(idx);
+      const angle = (2 * Math.PI * pos) / cluster.length;
+      const radius = 0.0135; // ~1.5km
+      lat = trip.lat + radius * Math.cos(angle);
+      lng = trip.lng + radius * Math.sin(angle) / Math.cos(trip.lat * Math.PI / 180);
+    }
+
     const icon = isCurrent
       ? L.divIcon({
           className: '',
@@ -269,10 +299,10 @@ function renderMarkers(list) {
           iconAnchor: [7, 7]
         });
 
-    const marker = L.marker([trip.lat, trip.lng], {
+    const marker = L.marker([lat, lng], {
       icon,
       riseOnHover: true,
-      title: `${trip.place}${trip.country ? ', ' + trip.country : ''}`
+      title: `${trip.place}${trip.country ? ', ' + trip.country : ''} · ${formatDate(trip.date)}`
     }).addTo(map);
 
     marker.bindPopup(buildPopupHtml(trip, isCurrent), {
@@ -283,10 +313,10 @@ function renderMarkers(list) {
       offset: [0, -4]
     });
 
-    marker.on('popupopen', () => highlightEntry(trip.id, false));
-    marker.on('click', () => highlightEntry(trip.id, false));
+    marker.on('popupopen', () => highlightEntry(trip._key, false));
+    marker.on('click', () => highlightEntry(trip._key, false));
 
-    markersById.set(trip.id, marker);
+    markersById.set(trip._key, marker);
   });
 }
 
@@ -336,35 +366,36 @@ function renderTimeline(list) {
     const isCurrent = list.indexOf(trip) === lastIdx;
     const el = document.createElement('div');
     el.className = 'entry' + (isCurrent ? ' current' : '');
-    el.dataset.id = trip.id;
+    el.dataset.id = trip._key;
     el.innerHTML = `
       <div class="e-date">${formatDate(trip.date)}</div>
       <div class="e-place">${escapeHtml(trip.place)}${isCurrent ? '<span class="e-badge">now</span>' : ''}</div>
       <div class="e-country">${escapeHtml(trip.country || '')}</div>
     `;
-    el.addEventListener('click', () => focusTrip(trip.id));
+    el.addEventListener('click', () => focusTrip(trip._key));
     tl.appendChild(el);
-    entriesById.set(trip.id, el);
+    entriesById.set(trip._key, el);
   });
 }
 
-function highlightEntry(id, scroll = true) {
-  entriesById.forEach((el, key) => {
-    el.classList.toggle('active', key === id);
+function highlightEntry(key, scroll = true) {
+  entriesById.forEach((el, k) => {
+    el.classList.toggle('active', k === key);
   });
   if (scroll) {
-    const el = entriesById.get(id);
+    const el = entriesById.get(key);
     if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }
 }
 
-function focusTrip(id) {
-  const trip = trips.find(t => t.id === id);
-  const marker = markersById.get(id);
+function focusTrip(key) {
+  const trip = trips.find(t => t._key === key);
+  const marker = markersById.get(key);
   if (!trip || !marker) return;
 
-  highlightEntry(id, true);
-  map.flyTo([trip.lat, trip.lng], Math.max(map.getZoom(), 5), { duration: 0.5 });
+  highlightEntry(key, true);
+  const target = marker.getLatLng();
+  map.flyTo(target, Math.max(map.getZoom(), 5), { duration: 0.5 });
   map.once('moveend', () => {
     marker.openPopup();
   });
