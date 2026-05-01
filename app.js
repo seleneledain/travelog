@@ -32,7 +32,10 @@ async function init() {
     const res = await fetch('trips.json', { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed to load trips.json (${res.status})`);
     const data = await res.json();
-    trips = (data.trips || []).slice().sort(byDateAsc);
+    trips = (data.trips || [])
+      .slice()
+      .sort(byDateAsc)
+      .map((t, i) => ({ ...t, id: `${t.id || 'stop'}-${i}` }));
   } catch (err) {
     console.error(err);
     showError('Could not load trips.json');
