@@ -64,8 +64,7 @@ function setupMap() {
     worldCopyJump: true,
     attributionControl: true,
     minZoom: 2,
-    maxZoom: 18,
-    preferCanvas: true
+    maxZoom: 18
   }).setView([20, 0], 2);
 
   L.tileLayer(MAP_TILES, {
@@ -92,6 +91,10 @@ function renderRoute(list) {
     lineJoin: 'round',
     smoothFactor: 1
   }).addTo(map);
+
+  // Enable smooth CSS fade during map fly animations
+  const el = routeLine.getElement();
+  if (el) el.style.transition = 'opacity 0.25s ease';
 }
 
 // ------------------------------------------------------------
@@ -211,8 +214,17 @@ function focusTrip(id) {
   if (!trip || !marker) return;
 
   highlightEntry(id, true);
+  setRouteOpacity(0);
   map.flyTo([trip.lat, trip.lng], Math.max(map.getZoom(), 5), { duration: 0.9 });
-  marker.openPopup();
+  map.once('moveend', () => {
+    setRouteOpacity(0.85);
+    marker.openPopup();
+  });
+}
+
+function setRouteOpacity(val) {
+  const el = routeLine?.getElement();
+  if (el) el.style.opacity = val;
 }
 
 // ------------------------------------------------------------
