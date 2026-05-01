@@ -1,7 +1,20 @@
 /* ============================================================
    Our Sailing Adventure — app.js
-   Loads trips.json, renders map + route + markers + timeline.
+   Loads trip data (Google Sheet → falls back to trips.json),
+   renders map + route + markers + timeline.
    ============================================================ */
+
+// ------------------------------------------------------------
+// DATA SOURCE
+// ------------------------------------------------------------
+// Paste your "Publish to web → CSV" URL here. It looks like:
+//   https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv
+// Leave as empty string to use trips.json only.
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRh6LTKUeoHXTefmZt-QvTF4r-X7YUp_j_i2nzeU0Chh1o2v3FRVt50EpIFcagGGBX_O-mTAgpJy20/pubhtml';
+
+// How long to trust a cached copy of the sheet, in minutes.
+// Google caches the published CSV for ~5min anyway, so 5 is a sensible default.
+const CACHE_MINUTES = 5;
 
 const MAP_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const MAP_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
@@ -29,21 +42,15 @@ async function init() {
   setupAbout();
 
   try {
-    const res = await fetch('trips.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`Failed to load trips.json (${res.status})`);
-    const data = await res.json();
-    trips = (data.trips || [])
-      .slice()
-      .sort(byDateAsc)
-      .map((t, i) => ({ ...t, id: `${t.id || 'stop'}-${i}` }));
+    trips = await loadTrips();
   } catch (err) {
     console.error(err);
-    showError('Could not load trips.json');
+    showError('Could not load trip data');
     return;
   }
 
   if (!trips.length) {
-    showError('No trips yet — add some to trips.json');
+    showError('No trips yet — add some to the sheet or trips.json');
     return;
   }
 
@@ -59,8 +66,148 @@ async function init() {
 }
 
 // ------------------------------------------------------------
-// Map setup
+// Data loading: Google Sheet (preferred) → trips.json (fallback)
 // ------------------------------------------------------------
+async function loadTrips() {
+  // 1. Try the sheet, if configured
+  if (SHEET_CSV_URL) {
+    try {
+      const fromSheet = await loadFromSheet();
+      if (fromSheet.length) {
+        console.info(`Loaded ${fromSheet.length} entries from Google Sheet`);
+        return fromSheet;
+      }
+      console.warn('Sheet returned no rows — falling back to trips.json');
+    } catch (err) {
+      console.warn('Sheet load failed, falling back to trips.json:', err);
+    }
+  }
+
+  // 2. Fallback: local trips.json
+  const res = await fetch('trips.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Failed to load trips.json (${res.status})`);
+  const data = await res.json();
+  return (data.trips || []).slice().sort(byDateAsc);
+}
+
+async function loadFromSheet() {
+  // Try cache first
+  const cached = readSheetCache();
+  if (cached) return cached;
+
+  const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Sheet fetch failed (${res.status})`);
+  const csv = await res.text();
+  const rows = parseCSV(csv);
+  const trips = rows.map(rowToTrip).filter(Boolean).sort(byDateAsc);
+  writeSheetCache(trips);
+  return trips;
+}
+
+// Convert one parsed CSV row (object keyed by header name) into a trip entry.
+// Headers expected (case/space tolerant): id, date, place, country, lat, lng,
+//   note, photo, link1_platform, link1_url, link2_platform, link2_url, ...
+// Unknown columns are ignored. Missing required fields → row is skipped.
+function rowToTrip(row) {
+  const get = (key) => {
+    // tolerant lookup: ignore case + spaces + underscores
+    const norm = (s) => s.toLowerCase().replace(/[\s_-]/g, '');
+    const want = norm(key);
+    for (const k of Object.keys(row)) {
+      if (norm(k) === want) return (row[k] ?? '').trim();
+    }
+    return '';
+  };
+
+  const lat = parseFloat(get('lat') || get('latitude'));
+  const lng = parseFloat(get('lng') || get('lon') || get('longitude'));
+  const date = get('date');
+  const place = get('place');
+
+  // required fields — skip the row if any are missing
+  if (!date || !place || isNaN(lat) || isNaN(lng)) return null;
+
+  // Collect link pairs: link1_platform/link1_url, link2_platform/link2_url, ...
+  const links = [];
+  for (let i = 1; i <= 6; i++) {
+    const platform = get(`link${i}_platform`) || get(`link${i}platform`);
+    const url = get(`link${i}_url`) || get(`link${i}url`);
+    if (url) links.push({ platform: platform || 'blog', url });
+  }
+  // Also accept a single "social_url" / "social_type" pair for simpler sheets
+  const singleUrl = get('social_url') || get('socialurl');
+  const singleType = get('social_type') || get('socialtype') || get('platform');
+  if (singleUrl) links.push({ platform: singleType || 'blog', url: singleUrl });
+
+  return {
+    id: get('id') || `${place}-${date}`,
+    date,
+    place,
+    country: get('country'),
+    lat,
+    lng,
+    note: get('note'),
+    photo: get('photo') || get('photo_url') || get('photourl'),
+    links
+  };
+}
+
+// Tiny but real CSV parser — handles quoted fields, escaped quotes ("")
+// and embedded newlines/commas. Returns an array of objects keyed by
+// the first row's headers.
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c === '\r') { /* swallow — \n will close the row */ }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+
+  if (!rows.length) return [];
+  const headers = rows.shift().map(h => h.trim());
+  return rows
+    .filter(r => r.some(cell => cell.trim() !== '')) // drop empty rows
+    .map(r => Object.fromEntries(headers.map((h, i) => [h, r[i] ?? ''])));
+}
+
+// ------------------------------------------------------------
+// Sheet cache (localStorage) — keeps the site snappy on repeat
+// visits and gives us something to show if the network is down.
+// ------------------------------------------------------------
+const CACHE_KEY = 'sailing.sheet.v1';
+
+function readSheetCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { ts, trips } = JSON.parse(raw);
+    const ageMin = (Date.now() - ts) / 60000;
+    if (ageMin > CACHE_MINUTES) return null;
+    return trips;
+  } catch { return null; }
+}
+
+function writeSheetCache(trips) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), trips }));
+  } catch { /* quota or private mode — ignore */ }
+}
+
+
 function setupMap() {
   map = L.map('map', {
     zoomControl: true,
