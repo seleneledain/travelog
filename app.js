@@ -214,10 +214,8 @@ function focusTrip(id) {
   if (!trip || !marker) return;
 
   highlightEntry(id, true);
-  setRouteOpacity(0);
-  map.flyTo([trip.lat, trip.lng], Math.max(map.getZoom(), 5), { duration: 0.9 });
+  map.flyTo([trip.lat, trip.lng], Math.max(map.getZoom(), 5), { duration: 0.5 });
   map.once('moveend', () => {
-    setRouteOpacity(0.85);
     marker.openPopup();
   });
 }
