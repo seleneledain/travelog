@@ -2,12 +2,54 @@
   "trips": [
     {
       "id": "Zurich",
-      "date": "2026-06-29",
+      "date": "2026-02-01",
       "place": "Zürich",
       "country": "Switzerland",
       "lat": 47.370515017220725, 
       "lng": 8.518803312665701,
-      "note": "Good-bye party/Sélène's birthday party. We're sad to leave our friends, but ready for the new life ahead.",
+      "note": "We've decided to commit to the idea, and not just the dream!",
+      "photo": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80",
+      "links": [
+        { "platform": "instagram", "url": "https://instagram.com/" },
+        { "platform": "youtube",   "url": "https://youtube.com/" }
+      ]
+    },
+    {
+      "id": "Germany",
+      "date": "2026-03-01",
+      "place": "Heiligenhafen",
+      "country": "Germany",
+      "lat": 54.37127008833524, 
+      "lng": 10.965353638243911,
+      "note": "Visiting the first boats",
+      "photo": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80",
+      "links": [
+        { "platform": "instagram", "url": "https://instagram.com/" },
+        { "platform": "youtube",   "url": "https://youtube.com/" }
+      ]
+    },
+    {
+      "id": "Finland",
+      "date": "2026-04-01",
+      "place": "Helsinki",
+      "country": "Finland",
+      "lat": 60.31786683366526, 
+      "lng": 24.947764717534604,
+      "note": "Could this be out boat?",
+      "photo": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80",
+      "links": [
+        { "platform": "instagram", "url": "https://instagram.com/" },
+        { "platform": "youtube",   "url": "https://youtube.com/" }
+      ]
+    },
+    {
+      "id": "Zurich",
+      "date": "2026-05-01",
+      "place": "Zürich",
+      "country": "Switzerland",
+      "lat": 47.370515017220725, 
+      "lng": 8.518803312665701,
+      "note": "Last weeks of preparation",
       "photo": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80",
       "links": [
         { "platform": "instagram", "url": "https://instagram.com/" },
@@ -21,7 +63,7 @@
       "country": "Finland",
       "lat": 60.31786683366526, 
       "lng": 24.947764717534604,
-      "note": "Landed in Helsinki and headed to our boat. Last night on land for 6 months!!!",
+      "note": "The journey begins",
       "photo": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80",
       "links": [
         { "platform": "instagram", "url": "https://instagram.com/" },
@@ -30,7 +72,7 @@
     },
     {
       "id": "Sweden",
-      "date": "2026-08-01",
+      "date": "2026-07-15s",
       "place": "Stockholm",
       "country": "Sweden",
       "lat": 59.35707946853565, 
