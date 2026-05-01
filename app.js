@@ -10,7 +10,7 @@
 // Paste your "Publish to web → CSV" URL here. It looks like:
 //   https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv
 // Leave as empty string to use trips.json only.
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRh6LTKUeoHXTefmZt-QvTF4r-X7YUp_j_i2nzeU0Chh1o2v3FRVt50EpIFcagGGBX_O-mTAgpJy20/pubhtml';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRh6LTKUeoHXTefmZt-QvTF4r-X7YUp_j_i2nzeU0Chh1o2v3FRVt50EpIFcagGGBX_O-mTAgpJy20/pub?gid=1904084294&single=true&output=csv';
 
 // How long to trust a cached copy of the sheet, in minutes.
 // Google caches the published CSV for ~5min anyway, so 5 is a sensible default.
