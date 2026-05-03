@@ -722,26 +722,61 @@ body::before {
 @media (max-width: 720px) {
   :root { --timeline-h: 185px; }
 
-  .brand { top: 16px; left: 16px; }
-  .brand h1 { font-size: 26px; }
-  .brand-sub { font-size: 11.5px; }
+  /* Brand: stack the name and subtitle vertically, cap width so it
+     never reaches under the top-right buttons. */
+  .brand {
+    top: 14px;
+    left: 16px;
+    /* leave a generous corridor on the right for the two pill buttons */
+    max-width: calc(100vw - 180px);
+  }
+  .brand h1 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .brand-name {
+    font-size: 22px;
+    line-height: 1.05;
+  }
+  .brand-sub-title {
+    font-size: 10.5px;
+    letter-spacing: 0.28em;
+    top: 0;          /* cancel the desktop baseline lift */
+  }
+  .brand-sub {
+    font-size: 11px;
+    margin-top: 6px;
+  }
 
+  /* Top-right nav: keep on one row, smaller pills, tighter gap.
+     If it ever needs to wrap (very narrow phone), let it. */
   .top-nav {
-    top: 18px; right: 16px;
-    gap: 6px;
+    top: 14px;
+    right: 12px;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 160px;
   }
   .about-btn {
-    padding: 5px 11px; font-size: 9.5px;
+    padding: 5px 10px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
   }
+
   .reset-btn {
-    right: 16px;
+    right: 12px;
     bottom: calc(var(--timeline-h) + 12px);
-    padding: 6px 10px; font-size: 9.5px;
+    padding: 6px 10px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
   }
   .scroll-cue {
     bottom: calc(var(--timeline-h) + 8px);
     font-size: 9px;
     padding: 5px 10px;
+    letter-spacing: 0.14em;
   }
 
   .timeline-head { padding: 10px 16px 6px; }
@@ -755,6 +790,29 @@ body::before {
   .about-section { padding: 56px 20px 48px; }
   .about-section h2 { font-size: 26px; }
   .about-section p { font-size: 15.5px; }
+}
+
+/* Extra-small phones — iPhone SE, older Androids (~360px wide).
+   At this width the two-pill nav can't sit beside the brand, so we
+   simplify: tighter pills, smaller brand, and we collapse the
+   subtitle row onto its own line. */
+@media (max-width: 400px) {
+  .brand {
+    max-width: calc(100vw - 150px);
+  }
+  .brand-name { font-size: 20px; }
+  .brand-sub-title { font-size: 10px; letter-spacing: 0.24em; }
+  .brand-sub { font-size: 10.5px; }
+
+  .top-nav {
+    max-width: 140px;
+    gap: 4px;
+  }
+  .about-btn {
+    padding: 4px 8px;
+    font-size: 8.5px;
+    letter-spacing: 0.12em;
+  }
 }
 
 /* ============================================================
