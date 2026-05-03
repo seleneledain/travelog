@@ -910,3 +910,62 @@ body::before {
   .cf-input { font-size: 15.5px; padding: 9px 11px; }
   .cf-submit { width: 100%; justify-content: center; }
 }
+
+
+/* ============================================================
+   SCROLL-TO-TOP — floating button, appears after leaving stage
+   ============================================================ */
+.scroll-top-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 600;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  /* Hidden by default — JS toggles `.is-visible` once we're scrolled */
+  opacity: 0;
+  transform: translateY(8px) scale(0.96);
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease, background .18s ease, color .18s ease, border-color .18s ease;
+}
+.scroll-top-btn.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.scroll-top-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.scroll-top-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+.scroll-top-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow), 0 0 0 3px rgba(194, 85, 58, 0.25);
+}
+.scroll-top-btn svg { display: block; }
+
+@media (max-width: 720px) {
+  .scroll-top-btn {
+    right: 16px;
+    bottom: 16px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-top-btn { transition: opacity .15s ease; }
+}

@@ -544,3 +544,41 @@ function isEmail(s) {
   // pragmatic, not RFC-perfect — catches the everyday typos
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
+
+// ------------------------------------------------------------
+// Scroll-to-top button — fades in once user moves past the hero
+// ------------------------------------------------------------
+initScrollTopBtn();
+
+function initScrollTopBtn() {
+  const btn = document.getElementById('scroll-top-btn');
+  if (!btn) return;
+
+  // Show the button once we've scrolled meaningfully past the start.
+  // Threshold = 25% of viewport height — small enough that you don't
+  // have to dig for it, large enough that it isn't visible at rest.
+  const threshold = () => Math.max(160, window.innerHeight * 0.25);
+
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY || document.documentElement.scrollTop;
+      btn.classList.toggle('is-visible', y > threshold());
+      ticking = false;
+    });
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  // Run once on load in case the page starts already scrolled (anchor link, refresh)
+  onScroll();
+
+  btn.addEventListener('click', () => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({
+      top: 0,
+      behavior: reduceMotion ? 'auto' : 'smooth'
+    });
+  });
+}
