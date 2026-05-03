@@ -25,23 +25,17 @@
 * { box-sizing: border-box; }
 a { color: inherit; text-decoration: none; }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
   margin: 0;
-  height: 100%;
   background: var(--paper);
   color: var(--ink);
   font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow: hidden;
-}
-
-/* MAP -------------------------------------------------------- */
-#map {
-  position: absolute;
-  inset: 0 0 var(--timeline-h) 0;
-  background: var(--paper);
-  z-index: 1;
 }
 
 /* paper grain over the whole page */
@@ -56,6 +50,29 @@ body::before {
   background-size: 3px 3px;
   mix-blend-mode: multiply;
   opacity: .6;
+}
+
+/* ============================================================
+   STAGE — first-screen section holding the map + timeline
+   ============================================================ */
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;            /* fallback for older browsers */
+  height: 100svh;           /* small viewport — stable on mobile */
+  min-height: 100vh;        /* belt-and-suspenders: never collapse */
+  overflow: hidden;
+}
+@supports (height: 100dvh) {
+  .stage { height: 100dvh; }
+}
+
+/* MAP -------------------------------------------------------- */
+#map {
+  position: absolute;
+  inset: 0 0 var(--timeline-h) 0;
+  background: var(--paper);
+  z-index: 1;
 }
 
 /* tone the standard OSM tiles toward warm paper */
@@ -169,6 +186,10 @@ body::before {
   border-radius: 999px;
   transition: all .18s ease;
   backdrop-filter: blur(2px);
+  /* anchor reset */
+  display: inline-block;
+  text-decoration: none;
+  line-height: 1.4;
 }
 .about-btn:hover {
   background: var(--ink);
@@ -203,6 +224,43 @@ body::before {
   border-color: var(--ink);
 }
 .reset-btn svg { display: block; }
+
+/* SCROLL CUE — bottom of stage ------------------------------- */
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--timeline-h) + 14px);
+  transform: translateX(-50%);
+  z-index: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: rgba(245,236,220,.85);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  transition: all .18s ease;
+  backdrop-filter: blur(2px);
+}
+.scroll-cue:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.scroll-cue svg {
+  animation: nudge 1.8s ease-in-out infinite;
+}
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(2px); }
+}
 
 /* TIMELINE STRIP --------------------------------------------- */
 .timeline-wrap {
@@ -506,141 +564,81 @@ body::before {
   border-color: var(--ink);
 }
 
-/* MODAL ------------------------------------------------------ */
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.modal[hidden] { display: none; }
-.modal-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(26, 24, 20, .35);
-  backdrop-filter: blur(3px);
-  cursor: pointer;
-  animation: fadeIn .25s ease;
-}
-.modal-card {
+/* ============================================================
+   ABOUT SECTION (below the stage)
+   ============================================================ */
+.about-section {
   position: relative;
-  max-width: 480px;
   width: 100%;
   background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 36px 38px 28px;
-  box-shadow: var(--shadow-lg);
-  animation: rise .28s cubic-bezier(.2,.8,.2,1);
+  border-top: 1px solid var(--line);
+  padding: 80px 24px 60px;
+  /* deckle stripe at the top edge — same visual language as the timeline */
 }
-.modal-close {
+.about-section::before {
+  content: "";
   position: absolute;
-  top: 8px; right: 12px;
-  background: none; border: none;
-  font-size: 26px;
-  font-family: 'Fraunces', serif;
-  color: var(--ink-mute);
-  cursor: pointer;
-  line-height: 1;
-  padding: 4px 8px;
+  left: 0; right: 0; top: -1px;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--line) 0 8px,
+    transparent 8px 14px
+  );
+  pointer-events: none;
 }
-.modal-close:hover { color: var(--ink); }
 
-.modal-eyebrow {
+.about-inner {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.about-eyebrow {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.22em;
   color: var(--accent-deep);
   text-transform: uppercase;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
-.modal-card h2 {
+.about-section h2 {
   font-family: 'Fraunces', Georgia, serif;
   font-weight: 500;
   font-variation-settings: "opsz" 144;
-  font-size: 32px;
+  font-size: clamp(28px, 4vw, 38px);
   letter-spacing: -0.02em;
-  margin: 0 0 16px;
+  margin: 0 0 22px;
   line-height: 1.05;
 }
-.modal-card p {
+.about-section p {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.6;
   color: var(--ink-soft);
-  margin: 0 0 14px;
+  margin: 0 0 16px;
 }
-.modal-soft {
+
+.about-soft {
   font-size: 13px !important;
   color: var(--ink-mute) !important;
   border-top: 1px dashed var(--line);
-  padding-top: 14px;
-  margin-top: 18px !important;
+  padding-top: 16px;
+  margin-top: 22px !important;
 }
-.modal-soft code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  background: var(--paper-2);
-  padding: 1px 5px;
-  border-radius: 3px;
-}
-.modal-foot {
+.about-foot {
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 10.5px !important;
   letter-spacing: 0.1em;
   color: var(--ink-mute) !important;
-  margin-top: 16px !important;
+  margin-top: 20px !important;
   margin-bottom: 0 !important;
   text-transform: uppercase;
 }
 
-@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-@keyframes rise   {
-  from { opacity: 0; transform: translateY(12px) }
-  to   { opacity: 1; transform: translateY(0) }
-}
-
-/* ROUTE LINE styling (applied via JS via className) ---------- */
-.route-line {
-  /* leaflet polyline styling is done via JS options; this is fallback */
-}
-
-/* RESPONSIVE -------------------------------------------------- */
-@media (max-width: 720px) {
-  :root { --timeline-h: 185px; }
- 
-  .brand { top: 16px; left: 16px; }
-  .brand h1 { font-size: 26px; }
-  .brand-sub { font-size: 11.5px; }
- 
-  .about-btn {
-    top: 18px; right: 16px;
-    padding: 5px 11px; font-size: 9.5px;
-  }
-  .reset-btn {
-    right: 16px;
-    bottom: calc(var(--timeline-h) + 12px);
-    padding: 6px 10px; font-size: 9.5px;
-  }
- 
-  .timeline-head { padding: 10px 16px 6px; }
-  .timeline { padding: 12px 16px 16px; }
-  .entry { width: 180px; }
-  .entry .e-place { font-size: 17px; }
- 
-  .leaflet-popup-content { width: 240px !important; }
-  .popup .pop-place { font-size: 21px; }
- 
-  .modal-card { padding: 28px 24px 22px; }
-  .modal-card h2 { font-size: 26px; }
-  .modal-card p { font-size: 15px; }
-}
- 
 /* ABOUT — small inline photo between heading and body text */
 .about-photo {
-  margin: 0 auto 16px;
+  margin: 0 auto 22px;
   max-width: 250px;
   max-height: 250px;
   overflow: hidden;
@@ -657,7 +655,7 @@ body::before {
   object-fit: contain;
   filter: sepia(.18) saturate(.88) contrast(.96);
 }
- 
+
 /* ABOUT — social icon links */
 .about-socials {
   display: flex;
@@ -689,4 +687,63 @@ body::before {
 .about-social svg {
   display: block;
   flex-shrink: 0;
+}
+
+/* BACK TO TOP -------------------------------------------------- */
+.back-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding: 7px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  text-decoration: none;
+  transition: all .18s ease;
+}
+.back-to-top:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* RESPONSIVE -------------------------------------------------- */
+@media (max-width: 720px) {
+  :root { --timeline-h: 185px; }
+
+  .brand { top: 16px; left: 16px; }
+  .brand h1 { font-size: 26px; }
+  .brand-sub { font-size: 11.5px; }
+
+  .about-btn {
+    top: 18px; right: 16px;
+    padding: 5px 11px; font-size: 9.5px;
+  }
+  .reset-btn {
+    right: 16px;
+    bottom: calc(var(--timeline-h) + 12px);
+    padding: 6px 10px; font-size: 9.5px;
+  }
+  .scroll-cue {
+    bottom: calc(var(--timeline-h) + 8px);
+    font-size: 9px;
+    padding: 5px 10px;
+  }
+
+  .timeline-head { padding: 10px 16px 6px; }
+  .timeline { padding: 12px 16px 16px; }
+  .entry { width: 180px; }
+  .entry .e-place { font-size: 17px; }
+
+  .leaflet-popup-content { width: 240px !important; }
+  .popup .pop-place { font-size: 21px; }
+
+  .about-section { padding: 56px 20px 48px; }
+  .about-section h2 { font-size: 26px; }
+  .about-section p { font-size: 15.5px; }
 }

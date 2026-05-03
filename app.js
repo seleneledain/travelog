@@ -39,7 +39,6 @@ init();
 
 async function init() {
   setupMap();
-  setupAbout();
 
   try {
     trips = await loadTrips();
@@ -64,6 +63,12 @@ async function init() {
   renderTimeline(trips);
   updateStats(trips);
   fitToTrips(trips, { padding: [60, 60], animate: false });
+
+  // Belt-and-suspenders: if the map container's size wasn't fully
+  // resolved when Leaflet initialised (can happen if fonts/layout
+  // shift after first paint), force it to remeasure now.
+  map.invalidateSize();
+  window.addEventListener('resize', () => map.invalidateSize());
 
   document.getElementById('reset-btn').addEventListener('click', () => {
     fitToTrips(trips, { padding: [60, 60] });
@@ -415,29 +420,6 @@ function updateStats(list) {
   const last = list[list.length - 1];
   const where = last ? `currently in ${last.place}` : '';
   meta.textContent = `${list.length} stop${list.length === 1 ? '' : 's'} · ${countries.size} countr${countries.size === 1 ? 'y' : 'ies'} · ${where}`;
-}
-
-// ------------------------------------------------------------
-// About modal
-// ------------------------------------------------------------
-function setupAbout() {
-  const modal = document.getElementById('about-modal');
-  const openBtn = document.getElementById('about-btn');
-
-  const open = () => {
-    modal.hidden = false;
-    document.addEventListener('keydown', escClose);
-  };
-  const close = () => {
-    modal.hidden = true;
-    document.removeEventListener('keydown', escClose);
-  };
-  const escClose = (e) => { if (e.key === 'Escape') close(); };
-
-  openBtn.addEventListener('click', open);
-  modal.addEventListener('click', (e) => {
-    if (e.target.matches('[data-close]')) close();
-  });
 }
 
 // ------------------------------------------------------------

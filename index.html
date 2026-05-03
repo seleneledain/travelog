@@ -20,63 +20,73 @@
 </head>
 <body>
 
-  <!-- Header overlay (top-left) -->
-  <header class="brand" aria-label="Site header">
-    <h1>
-      <span class="brand-name">Sélène <span class="brand-amp">&amp;</span> David</span>
-      <span class="brand-sub-title">Sailing</span>
-    </h1>
-    <p class="brand-sub">A travel journal, in motion.</p>
-  </header>
+  <!-- =========================================================
+       SECTION 1 — Full-viewport map + timeline
+       ========================================================= -->
+  <section class="stage" id="stage">
 
-  <!-- About link (top-right) -->
-  <button class="about-btn" id="about-btn" aria-haspopup="dialog">about</button>
+    <!-- Header overlay (top-left) -->
+    <header class="brand" aria-label="Site header">
+      <h1>
+        <span class="brand-name">Sélène <span class="brand-amp">&amp;</span> David</span>
+        <span class="brand-sub-title">Sailing</span>
+      </h1>
+      <p class="brand-sub">A travel journal, in motion.</p>
+    </header>
 
-  <!-- Reset / fit-bounds button -->
-  <button class="reset-btn" id="reset-btn" title="Fit all stops">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="14" height="14">
-      <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
-    </svg>
-    <span>fit all</span>
-  </button>
+    <!-- About link (top-right) — now scrolls to the about section -->
+    <a class="about-btn" id="about-btn" href="#about">about</a>
 
-  <!-- Map -->
-  <div id="map" role="application" aria-label="World map of travels"></div>
+    <!-- Reset / fit-bounds button -->
+    <button class="reset-btn" id="reset-btn" title="Fit all stops">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="14" height="14">
+        <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+      </svg>
+      <span>fit all</span>
+    </button>
 
-  <!-- Bottom timeline strip -->
-  <section class="timeline-wrap" aria-label="Trip timeline">
-    <div class="timeline-head">
-      <span class="th-label">timeline</span>
-      <span class="th-meta" id="th-meta">— stops · — countries</span>
+    <!-- Map -->
+    <div id="map" role="application" aria-label="World map of travels"></div>
+
+    <!-- Bottom timeline strip -->
+    <div class="timeline-wrap" aria-label="Trip timeline">
+      <div class="timeline-head">
+        <span class="th-label">timeline</span>
+        <span class="th-meta" id="th-meta">— stops · — countries</span>
+      </div>
+      <div class="timeline" id="timeline"></div>
     </div>
-    <div class="timeline" id="timeline"></div>
+
+    <!-- Scroll cue at the bottom of the stage -->
+    <a class="scroll-cue" href="#about" aria-label="Scroll for more">
+      <span>more below</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="14" height="14" aria-hidden="true">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </a>
   </section>
 
-  <!-- About modal -->
-  <div class="modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden>
-    <div class="modal-backdrop" data-close></div>
-    <article class="modal-card">
-      <button class="modal-close" data-close aria-label="Close">×</button>
-      <p class="modal-eyebrow">— About</p>
+  <!-- =========================================================
+       SECTION 2 — About (scrolled into view)
+       ========================================================= -->
+  <section class="about-section" id="about" aria-labelledby="about-title">
+    <div class="about-inner">
+      <p class="about-eyebrow">— About</p>
       <h2 id="about-title">Hi, we are Sélène and David!</h2>
 
-      <!-- Small inline photo, between heading and body text -->
       <figure class="about-photo">
-        <img
-          src="photos/about.jpg"
-          alt="Sélène and David"
-        />
+        <img src="photos/about.jpg" alt="Sélène and David" />
       </figure>
 
       <p>
-        We decided to drop everything and go live on a sailboat. 
+        We decided to drop everything and go live on a sailboat.
         This is a slow record of where we've been, drawn on a map. Each dot is a stop,
-        each stop links to a moment — a post, a clip, a note scribbled at sea. 
+        each stop links to a moment — a post, a clip, a note scribbled at sea.
       </p>
       <p>
         We hope to inspire you with our journey, follow along:
       </p>
-      
+
       <!-- Social icon links -->
       <div class="about-socials" aria-label="Our social channels">
         <a class="about-social" href="https://instagram.com/seleneledain" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
@@ -101,15 +111,21 @@
           <span>TikTok</span>
         </a>
       </div>
- 
-      <p class="modal-soft">
-        <!--<em>Edit this text in <code>index.html</code> — look for the <code>#about-modal</code> section.</em>-->
-        <em>Created by Sélène Ledain, 2026.</em>
-      </p>
-      <p class="modal-foot">Built with Leaflet · OpenStreetMap · ⚓</p>
-    </article>
-  </div>
- 
+
+      <p class="about-soft"><em>Created by Sélène Ledain, 2026.</em></p>
+
+      <!-- Back-to-top -->
+      <a class="back-to-top" href="#stage" aria-label="Back to map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13" aria-hidden="true">
+          <path d="M6 15l6-6 6 6"/>
+        </svg>
+        <span>back to map</span>
+      </a>
+
+      <p class="about-foot">Built with Leaflet · OpenStreetMap · ⚓</p>
+    </div>
+  </section>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
