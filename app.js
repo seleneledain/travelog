@@ -463,3 +463,84 @@ function showError(msg) {
   const meta = document.getElementById('th-meta');
   if (meta) meta.textContent = msg;
 }
+
+// ------------------------------------------------------------
+// Contact form
+// ------------------------------------------------------------
+// No backend — submitting opens the user's mail client with the
+// message pre-filled. Easy upgrade path: replace the body of
+// `sendContactMessage` with a fetch() to Formspree / Web3Forms /
+// Netlify Forms / your own endpoint. Everything else (validation,
+// honeypot, status messages, button states) stays the same.
+
+const CONTACT_TO = 'hello@example.com'; // ← change this to your real address
+
+initContactForm();
+
+function initContactForm() {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+
+  const status = document.getElementById('cf-status');
+  const submit = form.querySelector('.cf-submit');
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    setStatus('');
+
+    const data = {
+      name:    form.name.value.trim(),
+      email:   form.email.value.trim(),
+      subject: form.subject.value.trim(),
+      message: form.message.value.trim(),
+      website: form.website.value.trim() // honeypot
+    };
+
+    // Honeypot: bots fill hidden fields. Silently accept-and-drop.
+    if (data.website) {
+      setStatus('Thanks — message sent.', 'success');
+      form.reset();
+      return;
+    }
+
+    // Validation
+    if (!data.name)  return setStatus('Please tell us your name.', 'error');
+    if (!isEmail(data.email)) return setStatus('That email looks off — mind checking it?', 'error');
+    if (!data.message || data.message.length < 5) {
+      return setStatus('Message is a bit short — say a little more?', 'error');
+    }
+
+    submit.disabled = true;
+    setStatus('Opening your mail app…');
+
+    try {
+      await sendContactMessage(data);
+      setStatus('Your mail app should now be open. Hit send to deliver it.', 'success');
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      setStatus('Something went wrong. You can also email us directly.', 'error');
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  function setStatus(text, kind = '') {
+    status.textContent = text;
+    status.classList.remove('success', 'error');
+    if (kind) status.classList.add(kind);
+  }
+}
+
+async function sendContactMessage({ name, email, subject, message }) {
+  // mailto fallback — works on every platform, requires no server
+  const subj = subject || `Hello from ${name}`;
+  const body = `${message}\n\n— ${name}\n${email}`;
+  const href = `mailto:${CONTACT_TO}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  window.location.href = href;
+}
+
+function isEmail(s) {
+  // pragmatic, not RFC-perfect — catches the everyday typos
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+}

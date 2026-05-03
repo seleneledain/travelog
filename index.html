@@ -34,8 +34,11 @@
       <p class="brand-sub">A travel journal, in motion.</p>
     </header>
 
-    <!-- About link (top-right) — now scrolls to the about section -->
-    <a class="about-btn" id="about-btn" href="#about">about</a>
+    <!-- Top-right links — scroll to the about / contact sections -->
+    <nav class="top-nav" aria-label="Page sections">
+      <a class="about-btn" id="about-btn" href="#about">about</a>
+      <a class="about-btn" id="contact-btn" href="#contact">contact</a>
+    </nav>
 
     <!-- Reset / fit-bounds button -->
     <button class="reset-btn" id="reset-btn" title="Fit all stops">
@@ -115,6 +118,71 @@
       <p class="about-soft"><em>Created by Sélène Ledain, 2026.</em></p>
 
       <!-- Back-to-top -->
+      <a class="back-to-top" href="#stage" aria-label="Back to map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13" aria-hidden="true">
+          <path d="M6 15l6-6 6 6"/>
+        </svg>
+        <span>back to map</span>
+      </a>
+
+      <p class="about-foot">Built with Leaflet · OpenStreetMap · ⚓</p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 3 — Contact
+       ========================================================= -->
+  <section class="about-section contact-section" id="contact" aria-labelledby="contact-title">
+    <div class="about-inner">
+      <p class="about-eyebrow">— Contact</p>
+      <h2 id="contact-title">Drop us a line.</h2>
+
+      <p>
+        Questions, collaborations, or a tip on a quiet anchorage we shouldn't miss?
+        Send a note — we read every one, eventually, when the wifi cooperates.
+      </p>
+
+      <form class="contact-form" id="contact-form" novalidate>
+        <div class="cf-row">
+          <label class="cf-label" for="cf-name">Name</label>
+          <input class="cf-input" id="cf-name" name="name" type="text" autocomplete="name" required />
+        </div>
+
+        <div class="cf-row">
+          <label class="cf-label" for="cf-email">Email</label>
+          <input class="cf-input" id="cf-email" name="email" type="email" autocomplete="email" required />
+        </div>
+
+        <div class="cf-row">
+          <label class="cf-label" for="cf-subject">Subject <span class="cf-opt">(optional)</span></label>
+          <input class="cf-input" id="cf-subject" name="subject" type="text" />
+        </div>
+
+        <div class="cf-row">
+          <label class="cf-label" for="cf-message">Message</label>
+          <textarea class="cf-input cf-textarea" id="cf-message" name="message" rows="5" required></textarea>
+        </div>
+
+        <!-- Honeypot — hidden from humans, irresistible to bots -->
+        <div class="cf-hp" aria-hidden="true">
+          <label for="cf-website">Website</label>
+          <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <button class="cf-submit" type="submit">
+          <span>Send message</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13" aria-hidden="true">
+            <path d="M5 12h14M13 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        <p class="cf-status" id="cf-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="about-soft">
+        Prefer email? Write to <a class="cf-mailto" href="mailto:hello@example.com">hello@example.com</a>.
+      </p>
+
       <a class="back-to-top" href="#stage" aria-label="Back to map">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13" aria-hidden="true">
           <path d="M6 15l6-6 6 6"/>
