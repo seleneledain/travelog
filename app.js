@@ -357,18 +357,16 @@ function buildPopupHtml(trip, isCurrent) {
 }
 
 // ------------------------------------------------------------
-// Timeline (newest first in the strip)
+// Timeline (oldest left → current right)
 // ------------------------------------------------------------
 function renderTimeline(list) {
   const tl = document.getElementById('timeline');
   tl.innerHTML = '';
   const lastIdx = list.length - 1;
 
-  // newest first
-  const ordered = list.slice().reverse();
-
-  ordered.forEach((trip) => {
-    const isCurrent = list.indexOf(trip) === lastIdx;
+  // oldest first — current location ends up on the right edge
+  list.forEach((trip, idx) => {
+    const isCurrent = idx === lastIdx;
     const el = document.createElement('div');
     el.className = 'entry' + (isCurrent ? ' current' : '');
     el.dataset.id = trip._key;
@@ -380,6 +378,12 @@ function renderTimeline(list) {
     el.addEventListener('click', () => focusTrip(trip._key));
     tl.appendChild(el);
     entriesById.set(trip._key, el);
+  });
+
+  // Scroll the strip to the far right so the current location is
+  // what the visitor sees first. Use rAF so layout has settled.
+  requestAnimationFrame(() => {
+    tl.scrollLeft = tl.scrollWidth;
   });
 }
 
