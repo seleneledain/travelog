@@ -477,7 +477,7 @@ function showError(msg) {
 // Netlify Forms / your own endpoint. Everything else (validation,
 // honeypot, status messages, button states) stays the same.
 
-const CONTACT_TO = 'hello@example.com'; // ← change this to your real address
+const CONTACT_TO = 'selenedavid.sailing@gmail.com';
 
 initContactForm();
 
