@@ -501,13 +501,16 @@ function showError(msg) {
 // ------------------------------------------------------------
 // Contact form
 // ------------------------------------------------------------
-// No backend — submitting opens the user's mail client with the
-// message pre-filled. Easy upgrade path: replace the body of
-// `sendContactMessage` with a fetch() to Formspree / Web3Forms /
-// Netlify Forms / your own endpoint. Everything else (validation,
-// honeypot, status messages, button states) stays the same.
+// Submissions POST to a Google Apps Script web app, which appends
+// the data as a row to a Google Sheet in our Drive. No backend, no
+// third-party form service.
+//
+// CORS note: we send the body as URL-encoded form data (not JSON)
+// so the browser treats it as a "simple request" and skips the
+// preflight OPTIONS call. Apps Script doesn't handle preflights,
+// and that's the only reason a JSON body would silently fail here.
 
-const CONTACT_TO = 'selenedavid.sailing@gmail.com';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyUFp7hDNWOYoZjxYEJzeSl4fBJv2I9cN3eRKAx3dH-2ZP8tPNEGtJX1KYRPmtDkzXJKA/exec';
 
 initContactForm();
 
@@ -545,15 +548,15 @@ function initContactForm() {
     }
 
     submit.disabled = true;
-    setStatus('Opening your mail app…');
+    setStatus('Sending…');
 
     try {
       await sendContactMessage(data);
-      setStatus('Your mail app should now be open. Hit send to deliver it.', 'success');
+      setStatus('Thanks — your message is on its way. We\'ll get back to you when the wifi cooperates.', 'success');
       form.reset();
     } catch (err) {
       console.error(err);
-      setStatus('Something went wrong. You can also email us directly.', 'error');
+      setStatus('Something went wrong sending your message. You can also email us directly.', 'error');
     } finally {
       submit.disabled = false;
     }
@@ -567,11 +570,29 @@ function initContactForm() {
 }
 
 async function sendContactMessage({ name, email, subject, message }) {
-  // mailto fallback — works on every platform, requires no server
-  const subj = subject || `Hello from ${name}`;
-  const body = `${message}\n\n— ${name}\n${email}`;
-  const href = `mailto:${CONTACT_TO}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
-  window.location.href = href;
+  // URLSearchParams sends application/x-www-form-urlencoded, which is
+  // a "simple" request — no CORS preflight, which Apps Script doesn't
+  // handle anyway. Apps Script reads these as e.parameter.name etc.
+  const body = new URLSearchParams({
+    name,
+    email,
+    subject: subject || '',
+    message
+  });
+
+  const res = await fetch(SHEET_WEBHOOK_URL, {
+    method: 'POST',
+    body
+    // deliberately no Content-Type header — URLSearchParams sets it.
+  });
+
+  if (!res.ok) throw new Error(`Sheet write failed (${res.status})`);
+
+  // Apps Script returns JSON: { status: 'success' } or { status: 'error', error: ... }
+  const result = await res.json();
+  if (result.status !== 'success') {
+    throw new Error(result.error || 'Sheet rejected the submission');
+  }
 }
 
 function isEmail(s) {
