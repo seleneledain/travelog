@@ -328,8 +328,9 @@ function renderMarkers(list) {
 function buildPopupHtml(trip, isCurrent) {
   const date = formatDate(trip.date);
   const country = trip.country ? `<div class="pop-country">${escapeHtml(trip.country)}${isCurrent ? ' · currently here' : ''}</div>` : '';
-  const photo = trip.photo
-    ? `<img class="pop-photo" src="${escapeAttr(trip.photo)}" alt="${escapeAttr(trip.place)}" onerror="this.style.display='none'" />`
+  const photoUrl = normalizePhotoUrl(trip.photo);
+  const photo = photoUrl
+    ? `<img class="pop-photo" src="${escapeAttr(photoUrl)}" alt="${escapeAttr(trip.place)}" onerror="this.style.display='none'" />`
     : '';
   const note = trip.note
     ? `<p class="pop-note">${escapeHtml(trip.note)}</p>`
@@ -463,6 +464,30 @@ function escapeAttr(str = '') {
   return escapeHtml(str).replace(/"/g, '&quot;');
 }
 
+// Google Drive sharing links (the ones you get from "Share → Copy link")
+// point at an HTML viewer page, not at the image bytes — so an <img>
+// tag can't render them. We extract the file ID and rewrite it to
+// Drive's `thumbnail` endpoint, which DOES serve raw image data and
+// is the most reliable hot-link target.
+//
+// IMPORTANT: the file must be shared as "Anyone with the link → Viewer"
+// in Drive, otherwise even this URL returns an auth page.
+//
+// Non-Drive URLs (Unsplash, your own server, etc.) pass through untouched.
+function normalizePhotoUrl(url) {
+  if (!url) return url;
+  // Match the file ID from any common Drive URL shape:
+  //   https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+  //   https://drive.google.com/open?id=FILE_ID
+  //   https://drive.google.com/uc?id=FILE_ID&export=view
+  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+         || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (!m) return url;
+  // sz=w1200 asks Drive for an image ~1200px wide — plenty for the popup,
+  // small enough to load fast. Bump it if you want sharper photos.
+  return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1200`;
+}
+
 function showError(msg) {
   const meta = document.getElementById('th-meta');
   if (meta) meta.textContent = msg;
@@ -477,7 +502,11 @@ function showError(msg) {
 // Netlify Forms / your own endpoint. Everything else (validation,
 // honeypot, status messages, button states) stays the same.
 
-const CONTACT_TO = 'selenedavid.sailing@gmail.com';
+// Google Apps Script web app URL — receives form submissions and
+// appends them as rows to the "messages" tab of our spreadsheet.
+// To rotate this: in Apps Script → Deploy → Manage deployments →
+// edit → New version → Deploy. URL stays the same across versions.
+const CONTACT_ENDPOINT = 'PASTE_YOUR_WEB_APP_URL_HERE';
 
 initContactForm();
 
@@ -515,15 +544,15 @@ function initContactForm() {
     }
 
     submit.disabled = true;
-    setStatus('Opening your mail app…');
+    setStatus('Sending…');
 
     try {
       await sendContactMessage(data);
-      setStatus('Your mail app should now be open. Hit send to deliver it.', 'success');
+      setStatus('Thanks — message received. We\'ll be in touch.', 'success');
       form.reset();
     } catch (err) {
       console.error(err);
-      setStatus('Something went wrong. You can also email us directly.', 'error');
+      setStatus('Something went wrong sending that. You can also email us directly.', 'error');
     } finally {
       submit.disabled = false;
     }
@@ -537,11 +566,26 @@ function initContactForm() {
 }
 
 async function sendContactMessage({ name, email, subject, message }) {
-  // mailto fallback — works on every platform, requires no server
-  const subj = subject || `Hello from ${name}`;
-  const body = `${message}\n\n— ${name}\n${email}`;
-  const href = `mailto:${CONTACT_TO}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
-  window.location.href = href;
+  if (!CONTACT_ENDPOINT || CONTACT_ENDPOINT.includes('PASTE_YOUR')) {
+    throw new Error('CONTACT_ENDPOINT not configured');
+  }
+
+  // URLSearchParams sends as application/x-www-form-urlencoded, which
+  // is a CORS "simple" content type — no preflight, which is what
+  // Apps Script needs to play nice with browsers. The script reads
+  // these as e.parameter.name, e.parameter.email, etc.
+  const body = new URLSearchParams({
+    name,
+    email,
+    subject: subject || '',
+    message,
+    submitted_at: new Date().toISOString()
+  });
+
+  const res = await fetch(CONTACT_ENDPOINT, { method: 'POST', body });
+  if (!res.ok) throw new Error(`Endpoint returned ${res.status}`);
+  const data = await res.json().catch(() => ({ ok: true }));
+  if (data.ok === false) throw new Error(data.error || 'Server rejected message');
 }
 
 function isEmail(s) {
