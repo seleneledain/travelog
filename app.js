@@ -552,7 +552,7 @@ function initContactForm() {
 
     try {
       await sendContactMessage(data);
-      setStatus('Thanks — your message is on its way. We\'ll get back to you when the wifi cooperates.', 'success');
+      setStatus('Thanks — your message is on its way!', 'success');
       form.reset();
     } catch (err) {
       console.error(err);
