@@ -240,9 +240,24 @@ function setupMap() {
 // ------------------------------------------------------------
 // Route line
 // ------------------------------------------------------------
+// Stops before this date still get markers, but are not joined
+// by the sailing route (they were visits, not the voyage).
+const ROUTE_FROM = '2026-07-01';
+
+function isOnRoute(trip) {
+  const iso = String(trip.date || '').slice(0, 10);
+  return iso >= ROUTE_FROM;
+}
+
 function renderRoute(list) {
-  const coords = list.map(t => [t.lat, t.lng]);
-  if (routeLine) routeLine.remove();
+  if (routeLine) {
+    routeLine.remove();
+    routeLine = null;
+  }
+
+  const coords = list.filter(isOnRoute).map(t => [t.lat, t.lng]);
+  if (coords.length < 2) return;
+
   routeLine = L.polyline(coords, {
     color: '#1a1814',
     weight: 1.4,
